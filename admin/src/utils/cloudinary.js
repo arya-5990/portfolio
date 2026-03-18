@@ -1,6 +1,6 @@
-const cloudName = 'dpvab3v9f';
-const apiKey = '915544357637558';
-const apiSecret = 'eQR7z9rrUXMTa2qjvScLyUdZrp4';
+const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const apiKey = import.meta.env.VITE_CLOUDINARY_API_KEY;
+const apiSecret = import.meta.env.VITE_CLOUDINARY_API_SECRET;
 
 export const uploadToCloudinary = async (file) => {
   try {
