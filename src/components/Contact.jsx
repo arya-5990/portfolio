@@ -1,20 +1,27 @@
+import { useData } from '../context/DataContext';
+
 const Contact = () => {
+  const { data, loading } = useData();
+  const contact = data?.contact;
+
+  if (loading || !contact) return <section className="contact" id="contact"></section>;
+
   return (
     <section className="contact" id="contact">
       <h2 className="heading">Contact <span>Me!</span></h2>
       <div className="contact-info">
         <p>
           <strong>Email:</strong>{' '}
-          <a href="mailto:aryasha4906c@gmail.com">aryasha4906c@gmail.com</a>
+          <a href={`mailto:${contact.email}`}>{contact.email}</a>
         </p>
         <p>
           <strong>Phone:</strong>{' '}
-          <a href="tel:+917049780160">+91 7049780160</a>
+          <a href={`tel:${contact.phone.replace(/[^0-9+]/g, '')}`}>{contact.phone}</a>
         </p>
         <p>
           <strong>LinkedIn:</strong>{' '}
-          <a href="https://www.linkedin.com/in/arya-sharma-1963b030a/" target="_blank" rel="noreferrer">
-            Arya Sharma
+          <a href={contact.linkedinLink} target="_blank" rel="noreferrer">
+            {contact.linkedin}
           </a>
         </p>
       </div>
