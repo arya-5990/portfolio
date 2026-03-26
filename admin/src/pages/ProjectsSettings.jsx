@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Save, Plus, Trash2 } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { uploadToCloudinary } from '../utils/cloudinary';
 
 const ProjectsSettings = () => {
   const [projects, setProjects] = useState([]);
   const [newProj, setNewProj] = useState({ title: '', image: '', description: '', link: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,10 +27,27 @@ const ProjectsSettings = () => {
     fetchData();
   }, []);
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadToCloudinary(file);
+      setNewProj({ ...newProj, image: url });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleAdd = () => {
     if(!newProj.title) return;
     setProjects([...projects, { ...newProj, id: Date.now() }]);
     setNewProj({ title: '', image: '', description: '', link: '' });
+    const fileInput = document.getElementById('project-cover-upload');
+    if (fileInput) fileInput.value = '';
   };
 
   const handleRemove = (id) => {
@@ -71,8 +90,19 @@ const ProjectsSettings = () => {
             <input type="text" value={newProj.title} onChange={(e) => setNewProj({...newProj, title: e.target.value})} />
           </div>
           <div className="form-group">
-            <label>Project Cover Image URL</label>
-            <input type="text" value={newProj.image} onChange={(e) => setNewProj({...newProj, image: e.target.value})} />
+            <label>Project Cover Image {uploading && <span style={{fontSize: '12px', color: '#6366f1', marginLeft: '8px'}}>(Uploading...)</span>}</label>
+            <input 
+              id="project-cover-upload"
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageUpload} 
+              disabled={uploading}
+            />
+            {newProj.image && (
+              <div style={{ marginTop: '8px' }}>
+                <img src={newProj.image} alt="Preview" style={{ height: '60px', borderRadius: '4px', objectFit: 'cover' }} />
+              </div>
+            )}
           </div>
         </div>
         <div className="form-group">
